@@ -1,3 +1,6 @@
+dependecies:
+sudo apt-get install libncurses-dev
+
 # Flatland simulator right "Now"
 
 Create a multi-threaded interactive simulation of a vehicle in a simplified world
