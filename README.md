@@ -24,8 +24,8 @@ code documentation in english.
 acceleration, ‘a’ is rotating left.
 - When a button is pressed the vehicle accelerates, on it’s release it
 decelerates.
-- Hitting the '~' movable object is allowed - its mass equals the
-vehicles. On collision the ‘~’ absorbs the vehicle's kinetic energy and
+- Hitting the \'~\' movable object is allowed - its mass equals the
+vehicles. On collision the \'~\' absorbs the vehicle's kinetic energy and
 moves until decelerated.
 - '~' pushed against a wall becomes immovable.
 - Hitting a wall the vehicle is trashed.
