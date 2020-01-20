@@ -1,4 +1,4 @@
-# Flatland-simulator-right-Now
+# Flatland simulator right "Now"
 
 Create a multi-threaded interactive simulation of a vehicle in a simplified world
 with text-mode and keyboard interfaces. Please provide gcc makefile and doxygen style
@@ -24,10 +24,10 @@ code documentation in english.
 acceleration, ‘a’ is rotating left.
 - When a button is pressed the vehicle accelerates, on it’s release it
 decelerates.
-- Hitting the ‘~’ movable object is allowed - its mass equals the
+- Hitting the '~' movable object is allowed - its mass equals the
 vehicles. On collision the ‘~’ absorbs the vehicle's kinetic energy and
 moves until decelerated.
-- ‘~’ pushed against a wall becomes immovable.
+- '~' pushed against a wall becomes immovable.
 - Hitting a wall the vehicle is trashed.
 - If the head part of the vehicle collides with an arrow ‘>’ symbol the
 vehicle gains its maximum speed in the direction the symbol is pointing.
