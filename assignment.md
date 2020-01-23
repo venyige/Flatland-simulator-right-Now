@@ -1,5 +1,5 @@
 # Assignment
-[Back to README](README.md)
+[Back to README](README.md)\
 Create a multi-threaded interactive simulation of a vehicle in a simplified world
 with text-mode and keyboard interfaces. Please provide gcc makefile and doxygen style
 code documentation in english.
@@ -25,7 +25,8 @@ acceleration, 'a' is rotating left.
 - When a button is pressed the vehicle accelerates, on it's release it
 decelerates.
 - Hitting the '~' movable object is allowed - its mass equals the
-vehicles. On collision '~' absorbs the vehicle's kinetic energy and
+vehicles.
+- On collision '~' absorbs the vehicle's kinetic energy and
 moves until decelerated.
 - '~' pushed against a wall becomes immovable.
 - Hitting a wall the vehicle is trashed.
