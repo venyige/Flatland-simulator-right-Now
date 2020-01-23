@@ -20,16 +20,16 @@ The continuous rotation happens in both cases, but takes effect in different way
 
 Case A: As the car can proceed only in the predefined directions, the rotation snaps at them by the rules of floating point rounding of the angle divided by ```pi/4```. At the last snapping, if the rotation speed is not enough to bring it to the next named direction, the difference get lost from the last snapped direction as soon as the decelerating rotation eventually stops, so the car can proceed at "clear" directions. But if the rotating keys (a or d) having pressed during the not yet stopped previous rotation, the rotation gets accelerated/decelerated from its value at that point in time.
 
-Case B: The car can proceed in any arbitrary directions, so the grid get hit in an "aliased" manner, so proceeding in some low angle with a main axis, there would be several unit long way at the actual main axis until transfers one unit sideways.
+Case B: The car can proceed in any arbitrary directions, that is the grid get hit in an "aliased" manner, so proceeding in some low angle with a main axis, there would be several unit long way at the actual main axis until transfers one unit sideways.
 
 Note: "Case B" is deliberately omitted, because of 1. lack of time, 2. from the description "It can rotate in place by 45 degrees (= 1 turn)." it is not exactly as prescribed.
 
 ## Prerequisites
 ```sudo apt-get install cmake libx11-dev libncurses5-dev libncursesw5-dev```
-## Compile
+## Build and run
 ```
 $cmake.
 $make
-$./
+$./fsrn /full/path/to/scene/file
 ```
 
