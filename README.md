@@ -1,43 +1,35 @@
-dependecies:
-sudo apt-get install libncurses-dev
+﻿# Flatland simulator right "Now"
+[Assignment](assignment.md)
+## Scene file
+The file is to be read line by line, one line in file corresponds a line of the 80X25 screen.
+A minimal scene file is a text file containing a sole "x" or "X" character. This minimal scene file is being considered as empty 80X25 scene, with car position at the upper-left corner.
+The empty grid points can be denoted by spaces, or for better readability by dots "." or plus signs "+". Any character other than "x", "X", "<", "^", ">",  "v",  "#" or "~" being evaluated as empty space. Empty line being considered as line full of spaces. Lines shorter than 80, being padded with spaces. Missing lines of the full set of 25 being considered as empty lines.
+Lines longer than 80 being truncated.
+In the 80X25 range the file must contain one and only one "x" or "X" character denoting the car position.
+If car position is missing, the program quits with error message: "The car position is missing from scene file".
+In the 80X25 range of the scene file only one "x" or "X" allowed, if more than one found, the program quits with error message: "Only one car position is allowed".
+## Control
+To make it really physical, the human control should be implemented in a quasi real-time manner as e.g. a joystick unit. In order to gain a WASD control in "joystick" mode, I had to utilize the X11 library features. The other alternative was to get access to the low-level keyboard files of Linux, but it requires "sudo" access that nobody wants to grant to a third-party executable.
 
-# Flatland simulator right "Now"
+## Rotation implementation
+However the linear velocity can be adjusted in a continuous manner, the rotation speed is not similarly simple case. Why? Because even adjusting the direction angle at any arbitrary value (case B), the visualization takes place through a low resolution grid, so the controller would have no visual feedback about the accurate direction of the vehicle, so accidental collisions would occur, or the guardian agent’s warnings would cause confusion having conflict with the visual sense.
 
-Create a multi-threaded interactive simulation of a vehicle in a simplified world
-with text-mode and keyboard interfaces. Please provide gcc makefile and doxygen style
-code documentation in english.
-## World:
-- The whole universe is flat and has 80x25 characters.
-- The map of the world is loaded as plain text from file.
-- ‘#’ objects are considered as immovable rigid walls.
-- ‘>’ ‘<’ ‘v’ ‘^’ objects represent force vectors of “nature”.
-- ‘~’ is a movable object that absorbs kinetic energy.
-- ‘x’ is the origin where the vehicle shall be placed.
-- Newtonian laws of physics apply.
-## Vehicle:
-- It is a multi character construct consisting of a head and a tail. (e.g.“o-”) The tail has a heading visualization purpose only so collisions shall be calculated on the head part.
-- It has two differentially driven “wheels”.
-- It can rotate in place by 45 degrees (= 1 turn).
-- It’s linear and angular acceleration / deceleration is fixed. (1u/s)
-- It can achieve a maximum linear speed of 3 grids per second.
-- It’s maximum angular velocity is 1 turn per second.
-- Reversing is allowed.
-## Interactions:
-- The vehicle is controlled by “wasd” buttons, where ‘w’ is forward
-acceleration, ‘a’ is rotating left.
-- When a button is pressed the vehicle accelerates, on it’s release it
-decelerates.
-- Hitting the '~' movable object is allowed - its mass equals the
-vehicles. On collision the same absorbs the vehicle's kinetic energy and
-moves until decelerated.
-- '~' pushed against a wall becomes immovable.
-- Hitting a wall the vehicle is trashed.
-- If the head part of the vehicle collides with an arrow ‘>’ symbol the
-vehicle gains its maximum speed in the direction the symbol is pointing.
-Forces acting sideways or diagonal to course apply as angular
-velocities. (e.g. perpendicular to course, the vehicle is forced to turn
-into the opposite direction )\
-## “Drive Assistant”
-In the above framework, create an agent that disregards user commands if there would
-be a fatal collision on course and warns the user to slow down if there is no user
-interaction but the event would occur due to current vehicle velocities.
+In the other case the rotation manifests only in predefined grades namely 0, 45, 90, 135 etc… (case A) so the visual feedback is fitted to the visualization of the underlying physical phenomenon (in this case not quite physical).
+So I decided to consider both version with their advantages and drawbacks.
+The continuous rotation happens in both cases, but takes effect in different ways.
+
+Case A: As the car can proceed only in the predefined directions, the rotation snaps at them by the rules of floating point rounding of the angle divided by ```pi/4```. At the last snapping, if the rotation speed is not enough to bring it to the next named direction, the difference get lost from the last snapped direction as soon as the decelerating rotation eventually stops, so the car can proceed at "clear" directions. But if the rotating keys (a or d) having pressed during the not yet stopped previous rotation, the rotation gets accelerated/decelerated from its value at that point in time.
+
+Case B: The car can proceed in any arbitrary directions, so the grid get hit in an "aliased" manner, so proceeding in some low angle with a main axis, there would be several unit long way at the actual main axis until transfers one unit sideways.
+
+Note: "Case B" is deliberately omitted, because of 1. lack of time, 2. from the description "It can rotate in place by 45 degrees (= 1 turn)." it is not exactly as prescribed.
+
+## Prerequisites
+```sudo apt-get install cmake libx11-dev libncurses5-dev libncursesw5-dev```
+## Compile
+```
+$cmake.
+$make
+$./
+```
+
