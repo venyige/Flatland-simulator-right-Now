@@ -1,5 +1,6 @@
 ﻿# Flatland simulator right "Now"
-[Assignment](assignment.md)
+[Assignment](assignment.md) \
+[Further notes and considerations](./misc/notes.pdf)
 ## Scene file
 The file is to be read line by line, one line in file corresponds a line of the 80X25 screen.
 A minimal scene file is a text file containing a sole "x" or "X" character. This minimal scene file is being considered as empty 80X25 scene, with car position at the upper-left corner.
