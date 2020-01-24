@@ -11,9 +11,11 @@ template<size_t rowC, size_t colC>
 class gui_curses
 {
 public:
-    gui_curses( const volatile char& kbState,
-                mutex& sceneMutex,
-                const shared_ptr<array<array<char, colC>, rowC>>& sceneMat);
+    gui_curses( const volatile char&,
+                mutex&,
+                const shared_ptr<array<array<char, colC>,
+                rowC>>&,
+                volatile const bool&);
     ~gui_curses();
     void test();
     void disp();
@@ -21,6 +23,7 @@ private:
     const size_t _rowC=rowC;
     const size_t  _colC=colC;
     const volatile char& _kbState;
+    const volatile bool& _quitter;
     mutex& _sceneMutex;
     const shared_ptr<array<array<char, colC>, rowC>>& _sceneMat;
 };

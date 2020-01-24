@@ -5,10 +5,11 @@ namespace now{
 template<size_t rowC, size_t colC>
 gui_curses<rowC, colC>::gui_curses( const volatile char& kbState,
                         mutex& sceneMutex,
-                        const shared_ptr<array<array<char, colC>, rowC>>& sceneMat):
+                        const shared_ptr<array<array<char, colC>, rowC>>& sceneMat, volatile const bool& quitter):
     _kbState(kbState),
     _sceneMutex(sceneMutex),
-    _sceneMat(sceneMat)
+    _sceneMat(sceneMat),
+    _quitter(quitter)
 {
     initscr();
     keypad(stdscr, true);
@@ -25,7 +26,7 @@ template<size_t rowC, size_t colC>
 void gui_curses<rowC, colC>::disp()
 {
     int curChar;
-    while ((curChar = getch()) != KEY_ESC)
+    while  (((curChar = getch()) != KEY_ESC)&&(!_quitter))
     {
 //        clear();
         while(_sceneMutex.try_lock());
@@ -45,7 +46,7 @@ template<size_t rowC, size_t colC>
 void gui_curses<rowC, colC>::test()
 {
     int curChar;
-    while ((curChar = getch()) != KEY_ESC)
+    while (((curChar = getch()) != KEY_ESC)&&(!_quitter))
     {
         clear();
         while(_kbState){

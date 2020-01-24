@@ -35,12 +35,14 @@ void help(){
  * */
 int main(int argc, char** argv)
 {
+    const bool kbTestMode=false;
     const size_t scRowCnt=25;
     const size_t scColCnt=80;
     const double maxLinSpeed=3.0;
     const double maxAngSpeed=1.0;
     const double maxAcceleration=1.0;
     string sceneLine;
+    string driverMsg;
     size_t charX, charY;
     shared_ptr<array<array<char, scColCnt>, scRowCnt>> sceneMat=std::make_shared<array<array<char, scColCnt>, scRowCnt>>();///< Scene matrix definition and initialization
     int retVal=0;
@@ -116,15 +118,19 @@ int main(int argc, char** argv)
                                                                                                   kbQuitter,
                                                                                                   maxLinSpeed,
                                                                                                   maxAngSpeed,
-                                                                                                  maxAcceleration);
+                                                                                                  maxAcceleration,
+                                                                                                  driverMsg);
         thread drvTr=driverInst->driverThread();///< Start driver::physics() in a separate thread. Calling driver::driverThread() does the work.
 
         unique_ptr<keyboard> kbInst=make_unique<keyboard>(kbQuitter, kbdMutex);
         thread kbTr=kbInst->stateThread(kbState);///< Start keyboard::state() in a separate thread. Calling keyboard::stateThread() does the work.
 
-        unique_ptr<gui_curses<scRowCnt, scColCnt>> guiC=make_unique<gui_curses<scRowCnt, scColCnt>>(kbState, sceneMutex, sceneMat);
-        //    guiC->test();
-        guiC->disp();///< gui::disp works in the main thread.
+        unique_ptr<gui_curses<scRowCnt, scColCnt>> guiC=make_unique<gui_curses<scRowCnt, scColCnt>>(kbState, sceneMutex, sceneMat, kbQuitter);
+        if(kbTestMode){
+            guiC->test();
+        }else{
+            guiC->disp();///< gui::disp works in the main thread.
+        }
         kbQuitter=true;///< Whith this easy step we stopped the main loop of the keyboard and driver thread
         drvTr.join();
         kbTr.join();
@@ -132,7 +138,13 @@ int main(int argc, char** argv)
         sceneMat.reset();
         kbInst.reset(nullptr);
         guiC.reset(nullptr);
-        cout<<"Normal end of program. Enter to close."<<endl;
+        if(driverMsg.length()>0){
+            cout<<driverMsg<<endl;
+            cout<<"Enter to close."<<endl;
+
+        }else{
+            cout<<"Normal end of program. Enter to close."<<endl;
+        }
         getchar();
         return 0;
     }

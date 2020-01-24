@@ -14,9 +14,8 @@ link_directories(${X11_LIBRARIES})
 set(SOURCES
   src/main.cpp
   src/gui_curses.cpp
-  src/guard_agent.cpp
   src/keyboard.cpp
-  src/driver.cpp
+  src/guard_agent.cpp
   )
 
 set(HEADERS
@@ -25,6 +24,7 @@ set(HEADERS
     src/include/keyboard.h
     src/include/driver.h
     src/include/interface.h
+    src/include/di_math.h
   )
 set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++17 -pthread")
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
