@@ -102,6 +102,7 @@ void driver<rowC, colC>::physics(){
     interface_d::mv_b movBuf;///< Temporary storage for car or moving block position. Block type is the proper choice having no other members than X and Y.
     interface_d::mv_b nextBlockPos;///< Temporary storage for checking if collided, whether there is at least one other block in row - stopping condition.
     bool isMobile=true;///< Indicator to check if the collided movable block is mobile
+    bool removeMobile=false;
 
 
     /*** To initialize the scene matrix, we lock the scene mutex*/
@@ -122,7 +123,11 @@ void driver<rowC, colC>::physics(){
         /*** MOBILE BLOCK CHECK
          * Reads all movable blocks' acceleration.
          * If greater than epsilon, processes the movement.*/
-        for(interface_d::mv_tb& iii: intFac.blocks){
+
+        std::vector<interface_d::mv_tb>::iterator iib = intFac.blocks.begin();
+        while (iib != intFac.blocks.end())
+        {
+            interface_d::mv_tb& iii=*iib;
             distance=0.0;
             velocity=0.0;
 
@@ -169,10 +174,22 @@ void driver<rowC, colC>::physics(){
                     /*** Block checking loop
                  * If a block or wall is in track of the moving block, it stops
                  * and zeros all members. */
-                    for(interface_d::mv_tb bii: intFac.blocks){
-                        if(bii.X==nextBlockPos.X && bii.Y==nextBlockPos.Y){
-                            isMobile=false;
+                    for(interface_d::mv_f fii: intFac.forces){
+                        if(fii.X==nextBlockPos.X && fii.Y==nextBlockPos.Y){
+                            removeMobile=true;
                             break;
+                        }
+                    }
+                    if(removeMobile){
+                        intFac.blocks.erase(iib++);
+                        continue;
+                    }
+                    if(isMobile){
+                        for(interface_d::mv_b wii: intFac.blocks){
+                            if(wii.X==nextBlockPos.X && wii.Y==nextBlockPos.Y){
+                                isMobile=false;
+                                break;
+                            }
                         }
                     }
                     if(isMobile){
@@ -200,6 +217,7 @@ void driver<rowC, colC>::physics(){
 
                 }
             }
+            iib++;
         }
         /*** Updating the linear data of the car*/
         distance=0.0;
