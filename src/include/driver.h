@@ -125,6 +125,7 @@ void driver<rowC, colC>::physics(){
          * If greater than epsilon, processes the movement.*/
 
         std::vector<interface_d::mv_tb>::iterator iib = intFac.blocks.begin();
+        removeMobile=false;
         while (iib != intFac.blocks.end())
         {
             interface_d::mv_tb& iii=*iib;
@@ -182,6 +183,7 @@ void driver<rowC, colC>::physics(){
                     }
                     if(removeMobile){
                         intFac.blocks.erase(iib++);
+                        removeMobile=false;
                         continue;
                     }
                     if(isMobile){
