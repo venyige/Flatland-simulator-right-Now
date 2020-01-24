@@ -6,39 +6,50 @@
 #include<array>
 #include<memory>
 #include<thread>
+#include<interface.h>
+namespace now{
 using namespace std;
 
+template<const size_t rowC, const size_t colC>
 class driver
 {
 public:
-    driver(shared_ptr<array<array<char, 80>, 25>>&,
+
+    driver(shared_ptr<array<array<char, colC>, rowC>>&,
            mutex&,mutex&,
            volatile const char&,
            volatile const bool&,
-           size_t, size_t,
-           size_t, size_t);
+           const double&,
+           const double&,
+           const double&);
     void physics();
     thread driverThread(){return thread([this]{this->physics();});}
+    const interface_d& getInterface() const{return intFac;}
 private:
-    size_t _rowC, _colC, _carX, _carY;
-    const shared_ptr<array<array<char, 80>, 25>>& _sceneMat;
+    interface_d intFac;
+    const size_t _rowC=rowC;
+    const size_t _colC=colC;
+    size_t _carX, _carY;
+    const shared_ptr<array<array<char, colC>, rowC>>& _sceneMat;
     mutex& _sceneMutex;
     mutex& _kbdMutex;
-    char headReplacement;
-    char tailReplacement;
+    char headReplacement;///< In case car head gets in a force block
+
     volatile const char& _kbStat;
     volatile const bool& _quitter;
     char kbStatBuf;
-    using hiResClock=chrono::high_resolution_clock ;
-    double forwardOn,
-            backwardOn,
-            leftOn,
-            rightOn;
-
-    bool forwardProcessed,
-            backwardProcessed,
-            leftProcessed,
-            rightProcessed;
+    enum tailChar{u='|', ul='\\', l='-',  dl='/',  d='|', dr='\\', r='-', ur='/'};
+    typedef struct{
+        char X;
+        char Y;
+        char tailC=tailChar::u;
+        char replacement=' ';
+    }tail;
+    const double& _maxLinSpeed;
+    const double& _maxAngSpeed;
+    const double& _maxAcc;
 };
-
+}
+#include "../driver.cpp"
 #endif // DRIVER_H
+

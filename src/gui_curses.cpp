@@ -1,11 +1,11 @@
+#ifndef GUI_CURSES_CPP
+#define GUI_CURSES_CPP
 #include "gui_curses.h"
-using namespace std;
-gui_curses::gui_curses( const volatile char& kbState,
+namespace now{
+template<size_t rowC, size_t colC>
+gui_curses<rowC, colC>::gui_curses( const volatile char& kbState,
                         mutex& sceneMutex,
-                        const shared_ptr<array<array<char, 80>, 25>>& sceneMat,
-                        const size_t& rowC,
-                        const size_t& colC):
-    _rowC(rowC),_colC(colC),
+                        const shared_ptr<array<array<char, colC>, rowC>>& sceneMat):
     _kbState(kbState),
     _sceneMutex(sceneMutex),
     _sceneMat(sceneMat)
@@ -16,11 +16,13 @@ gui_curses::gui_curses( const volatile char& kbState,
     curs_set(0);///< remove the cursor
     nodelay(stdscr, TRUE);
 }
-gui_curses::~gui_curses()
+template<size_t rowC, size_t colC>
+gui_curses<rowC, colC>::~gui_curses()
 {
     endwin();
 }
-void gui_curses::disp()
+template<size_t rowC, size_t colC>
+void gui_curses<rowC, colC>::disp()
 {
     int curChar;
     while ((curChar = getch()) != KEY_ESC)
@@ -33,13 +35,14 @@ void gui_curses::disp()
             }
         }
         _sceneMutex.unlock();
-//        refresh();
-        napms(100);
+        refresh();
+        napms(70);
     }
 
 
 }
-void gui_curses::test()
+template<size_t rowC, size_t colC>
+void gui_curses<rowC, colC>::test()
 {
     int curChar;
     while ((curChar = getch()) != KEY_ESC)
@@ -61,3 +64,5 @@ void gui_curses::test()
         napms(10);
     }
 }
+}
+#endif //GUI_CURSES_CPP

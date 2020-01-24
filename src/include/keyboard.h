@@ -7,6 +7,7 @@
 #include <X11/keysym.h>
 #include<thread>
 #include<mutex>
+namespace now{
 using namespace std;
 
 class keyboard
@@ -25,5 +26,5 @@ private:
     bool prA, prS, prD, prW;
     KeyCode kca, kcA, kcw, kcW, kcs, kcS, kcd, kcD;
 };
-
+}
 #endif // KEYBOARD_H

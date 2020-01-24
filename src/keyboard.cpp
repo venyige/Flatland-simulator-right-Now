@@ -1,21 +1,18 @@
 #include "keyboard.h"
 #include <chrono>
-
-
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
-using namespace std;
-
+namespace now{
 
 void keyboard::state(volatile char& mState)
 {
     while(!_quitter){
         _state=0;
         XQueryKeymap( dpy, keys_return );
-        prW = ((!!(keys_return[kcw>>3]&(1<<(kcw&7))))||(!!(keys_return[kcW>>3]&(1<<(kcW&7)))));
-        prA = ((!!(keys_return[kca>>3]&(1<<(kca&7))))||(!!(keys_return[kcA>>3]&(1<<(kcA&7)))));
-        prS = ((!!(keys_return[kcs>>3]&(1<<(kcs&7))))||(!!(keys_return[kcS>>3]&(1<<(kcS&7)))));
-        prD = ((!!(keys_return[kcd>>3]&(1<<(kcd&7))))||(!!(keys_return[kcD>>3]&(1<<(kcD&7)))));
+        prW = (!!(keys_return[kcw>>3]&(1<<(kcw&7))))||(!!(keys_return[kcW>>3]&(1<<(kcW&7))));
+        prA = (!!(keys_return[kca>>3]&(1<<(kca&7))))||(!!(keys_return[kcA>>3]&(1<<(kcA&7))));
+        prS = (!!(keys_return[kcs>>3]&(1<<(kcs&7))))||(!!(keys_return[kcS>>3]&(1<<(kcS&7))));
+        prD = (!!(keys_return[kcd>>3]&(1<<(kcd&7))))||(!!(keys_return[kcD>>3]&(1<<(kcD&7))));
         if(prW)
             _state=1;
         if(prA)
@@ -49,4 +46,5 @@ keyboard::keyboard(volatile const bool& quitter,
     kcS = XKeysymToKeycode(dpy, XK_S);
     kcd = XKeysymToKeycode(dpy, XK_d);
     kcD = XKeysymToKeycode(dpy, XK_D);
+}
 }

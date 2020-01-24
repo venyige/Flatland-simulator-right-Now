@@ -24,9 +24,10 @@ set(HEADERS
     src/include/guard_agent.h
     src/include/keyboard.h
     src/include/driver.h
+    src/include/interface.h
   )
 set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++17 -pthread")
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 target_include_directories(${PROJECT_NAME} PUBLIC src/include)
 target_link_libraries (${PROJECT_NAME} ${CURSES_LIBRARIES}  ${X11_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
-set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "fsrn" CXX_STANDARD 17 CXX_EXTENSIONS OFF)
+set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "fsrn" CXX_STANDARD 17 CXX_EXTENSIONS ON)

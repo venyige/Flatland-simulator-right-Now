@@ -6,6 +6,7 @@
 #include<chrono>
 #include<fstream>
 #include<mutex>
+using namespace now;
 
 void help(){
     cout<< "The program must be started with full path to the scene file as first argument:"<<endl;
@@ -28,22 +29,20 @@ void help(){
     cout<< "In the 80X25 range of the scene file only one \"x\" or \"X\" allowed, if more than one"<<endl;
     cout<< "found, the program quits with error message: \"Only one car position is allowed\"."<<endl;
 }
-static bool chkFile(string name){
-    bool retVal=false;
-    ifstream f(name.c_str());
-    retVal= f.good();
-    return retVal;
-}
-using namespace std;
+
 /*** main function accepts one argument, the scene descriptor
  * file name with full path.
  * */
 int main(int argc, char** argv)
 {
+    const size_t scRowCnt=25;
+    const size_t scColCnt=80;
+    const double maxLinSpeed=3.0;
+    const double maxAngSpeed=1.0;
+    const double maxAcceleration=1.0;
     string sceneLine;
-    const size_t scRowCnt=25, scColCnt=80;
     size_t charX, charY;
-    shared_ptr<array<array<char, 80>, 25>> sceneMat=std::make_shared<array<array<char, 80>, 25>>();///< Scene matrix definition and initialization
+    shared_ptr<array<array<char, scColCnt>, scRowCnt>> sceneMat=std::make_shared<array<array<char, scColCnt>, scRowCnt>>();///< Scene matrix definition and initialization
     int retVal=0;
     if(argc>1){
         ifstream sceneF(string(argv[1]).c_str(), std::ifstream::in);
@@ -110,22 +109,31 @@ int main(int argc, char** argv)
         volatile bool kbQuitter=false;///< Quitter switch for keyboard listener
         mutex sceneMutex, kbdMutex; ///< Scene mutex to avoid duplicated appearance of car and moving blocks
 
-        unique_ptr<driver> driverInst=make_unique<driver>(sceneMat, sceneMutex, kbdMutex, kbState, kbQuitter, scRowCnt, scColCnt, charX, charY);
+        unique_ptr<driver<scRowCnt, scColCnt>> driverInst=make_unique<driver<scRowCnt, scColCnt>>(sceneMat,
+                                                                                                  sceneMutex,
+                                                                                                  kbdMutex,
+                                                                                                  kbState,
+                                                                                                  kbQuitter,
+                                                                                                  maxLinSpeed,
+                                                                                                  maxAngSpeed,
+                                                                                                  maxAcceleration);
         thread drvTr=driverInst->driverThread();///< Start driver::physics() in a separate thread. Calling driver::driverThread() does the work.
 
         unique_ptr<keyboard> kbInst=make_unique<keyboard>(kbQuitter, kbdMutex);
         thread kbTr=kbInst->stateThread(kbState);///< Start keyboard::state() in a separate thread. Calling keyboard::stateThread() does the work.
 
-        unique_ptr<gui_curses> gui=make_unique<gui_curses>(kbState, sceneMutex, sceneMat, scRowCnt, scColCnt);
-        //    gui->test();
-        gui->disp();///< gui::disp works in the main thread.
+        unique_ptr<gui_curses<scRowCnt, scColCnt>> guiC=make_unique<gui_curses<scRowCnt, scColCnt>>(kbState, sceneMutex, sceneMat);
+        //    guiC->test();
+        guiC->disp();///< gui::disp works in the main thread.
         kbQuitter=true;///< Whith this easy step we stopped the main loop of the keyboard and driver thread
         drvTr.join();
         kbTr.join();
         driverInst.reset();
         sceneMat.reset();
         kbInst.reset(nullptr);
-        gui.reset(nullptr);
+        guiC.reset(nullptr);
+        cout<<"Normal end of program. Enter to close."<<endl;
+        getchar();
         return 0;
     }
 }

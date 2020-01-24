@@ -4,25 +4,26 @@
 #include<curses.h>
 #include<mutex>
 #include<memory>
+namespace now{
 using namespace std;
 #define KEY_ESC 27
-
+template<size_t rowC, size_t colC>
 class gui_curses
 {
 public:
     gui_curses( const volatile char& kbState,
                 mutex& sceneMutex,
-                const shared_ptr<array<array<char, 80>, 25>>& sceneMat,
-                const size_t& rowC,
-                const size_t& colC);
+                const shared_ptr<array<array<char, colC>, rowC>>& sceneMat);
     ~gui_curses();
     void test();
     void disp();
 private:
-    const size_t& _rowC, _colC;
+    const size_t _rowC=rowC;
+    const size_t  _colC=colC;
     const volatile char& _kbState;
     mutex& _sceneMutex;
-    const shared_ptr<array<array<char, 80>, 25>>& _sceneMat;
+    const shared_ptr<array<array<char, colC>, rowC>>& _sceneMat;
 };
-
+}
+#include "../gui_curses.cpp"
 #endif // GUI_CURSES_H
