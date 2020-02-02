@@ -32,18 +32,16 @@ Note: "Case B" is deliberately omitted, because of 1. lack of time, 2. from the 
 
 ## Prerequisites
 
-```
-sudo apt-get install cmake libx11-dev libncurses5-dev libncursesw5-dev doxygen```\
+```sudo apt-get install cmake libx11-dev libncurses5-dev libncursesw5-dev doxygen``` 
 
 ## Build and run 
  
-```
-$mkdir build&&cd $_ 
-$cmake .. 
-$make$./flsrn /path/to/scene/file``` 
+```$mkdir build&&cd $_``` \
+```$cmake ..``` \
+```$make$./flsrn /path/to/scene/file``` 
  
 To display Driver Assistant warnings and logs in a second terminal: 
 
-```
-$tail -f /tmp/car_log.txt```
+```$tail -f /tmp/car_log.txt``` 
+
 
