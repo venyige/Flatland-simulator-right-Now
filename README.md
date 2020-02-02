@@ -38,7 +38,8 @@ Note: "Case B" is deliberately omitted, because of 1. lack of time, 2. from the 
  
 ```$mkdir build&&cd $_``` \
 ```$cmake ..``` \
-```$make$./flsrn /path/to/scene/file``` 
+```$make``` \
+```$./flsrn /path/to/scene/file``` 
  
 To display Driver Assistant warnings and logs in a second terminal: 
 
