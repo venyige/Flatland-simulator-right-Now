@@ -6,8 +6,11 @@
 #include<chrono>
 #include<fstream>
 #include<mutex>
+#include<guard_agent.h>
 using namespace now;
-
+/** \brief <h3>Welcome screen</h3>
+ * Puts out info about the only parameter, the scene descriptor file
+ * and the scene file structure and evaluation.*/
 void help(){
     cout<< "The program must be started with full path to the scene file as first argument:"<<endl;
     cout<< "./fsrn /full/path/to/scene/file"<<endl;
@@ -30,29 +33,48 @@ void help(){
     cout<< "found, the program quits with error message: \"Only one car position is allowed\"."<<endl;
 }
 
-/*** main function accepts one argument, the scene descriptor
- * file name with full path.
- * */
+
+
+/** <h3>main function</h3>
+ * accepts one argument, the scene descriptor
+ * file name with full path.*/
 int main(int argc, char** argv)
 {
+    /**
+* <h3> Parameters:</h3>
+*  <b><i>Note: All local constants. Let's say "compile time parameters"</i></b><br>
+* \b kbTestMode To test the keyboard in "joystick" mode.<br>
+* \b scRowCnt Row count<br>
+* \b scColCnt Column count<br>
+* \b maxLinSpeed Maximum linear speed<br>
+* \b maxAngSpeed Maximum angular speed<br>
+* \b maxAcceleration Maximum linear/angular acceleration
+\snippet this compile_time_pars*/
+    //[compile_time_pars]
     const bool kbTestMode=false;
     const size_t scRowCnt=25;
     const size_t scColCnt=80;
     const double maxLinSpeed=3.0;
     const double maxAngSpeed=1.0;
     const double maxAcceleration=1.0;
+    //[compile_time_pars]
     string sceneLine;
     string driverMsg;
     size_t charX, charY;
-    shared_ptr<array<array<char, scColCnt>, scRowCnt>> sceneMat=std::make_shared<array<array<char, scColCnt>, scRowCnt>>();///< Scene matrix definition and initialization
+    /** \brief Scene matrix definition and initialization: \snippet this 11*/
+    //[11]
+    shared_ptr<array<array<char, scColCnt>, scRowCnt>> sceneMat=std::make_shared<array<array<char, scColCnt>, scRowCnt>>();//< Scene matrix definition and initialization
+    //[11]
     int retVal=0;
     if(argc>1){
         ifstream sceneF(string(argv[1]).c_str(), std::ifstream::in);
         if(sceneF.good()){
             bool getCarPos=false;
             for(auto& iii: (*sceneMat)){
-                iii.fill(' ');///< fill with spaces (ascii 32)
+                iii.fill(' ');//< fill with spaces (ascii 32)
             }
+            /** \brief Processing and storing scene data: \snippet this 2*/
+            //[2]
             for(size_t iii=0; iii<scRowCnt&&!retVal; iii++){
                 if(getline(sceneF,sceneLine)){
                     for(size_t jjj=0; jjj<sceneLine.size()&&jjj<scColCnt&&!retVal;jjj++){
@@ -86,6 +108,7 @@ int main(int argc, char** argv)
                     break;
                 }
             }
+            //[2]
             if(!getCarPos){
                 help();
                 cout<<"The car position is missing from scene file"<<endl;
@@ -106,35 +129,63 @@ int main(int argc, char** argv)
         sceneMat.reset();
         return 1;
     }else {
-
-        volatile char kbState;///< Keyboard indicator - lsb:w,W, lsb+1:a,A lsb+2:s,S lsb+3:d,D
-        volatile bool kbQuitter=false;///< Quitter switch for keyboard listener
-        mutex sceneMutex, kbdMutex; ///< Scene mutex to avoid duplicated appearance of car and moving blocks
-
-        unique_ptr<driver<scRowCnt, scColCnt>> driverInst=make_unique<driver<scRowCnt, scColCnt>>(sceneMat,
-                                                                                                  sceneMutex,
-                                                                                                  kbdMutex,
-                                                                                                  kbState,
-                                                                                                  kbQuitter,
-                                                                                                  maxLinSpeed,
-                                                                                                  maxAngSpeed,
-                                                                                                  maxAcceleration,
-                                                                                                  driverMsg);
-        thread drvTr=driverInst->driverThread();///< Start driver::physics() in a separate thread. Calling driver::driverThread() does the work.
-
+        /** Bitwise keyboard indicator  - lsb:w,W, lsb+1:a,A lsb+2:s,S lsb+3:d,D \snippet this 3*/
+        //[3]
+        volatile char kbState;
+        //[3]
+        volatile bool kbQuitter=false;//< Quitter switch for thread loops
+        mutex sceneMutex, kbdMutex;
         unique_ptr<keyboard> kbInst=make_unique<keyboard>(kbQuitter, kbdMutex);
-        thread kbTr=kbInst->stateThread(kbState);///< Start keyboard::state() in a separate thread. Calling keyboard::stateThread() does the work.
-
+        /** Start keyboard::state() in a separate thread.  \snippet this 5*/
+        //[5]
+        thread kbTr=kbInst->stateThread(kbState);
+        //[5]
+        ofstream logFile;
         unique_ptr<gui_curses<scRowCnt, scColCnt>> guiC=make_unique<gui_curses<scRowCnt, scColCnt>>(kbState, sceneMutex, sceneMat, kbQuitter);
         if(kbTestMode){
             guiC->test();
+            kbQuitter=true;
         }else{
-            guiC->disp();///< gui::disp works in the main thread.
+
+            unique_ptr<driver<scRowCnt, scColCnt>> driverInst=make_unique<driver<scRowCnt, scColCnt>>(sceneMat,
+                                                                                                      sceneMutex,
+                                                                                                      kbdMutex,
+                                                                                                      kbState,
+                                                                                                      kbQuitter,
+                                                                                                      maxLinSpeed,
+                                                                                                      maxAngSpeed,
+                                                                                                      maxAcceleration,
+                                                                                                      driverMsg);
+            /** Start driver::physics() in a separate thread.  \snippet this 4*/
+            //[4]
+            thread drvTr=driverInst->driverThread();
+            //[4]
+
+            logFile.open("/tmp/car_log.txt", ios::out);
+            unique_ptr<guard_agent> guardInst=make_unique<guard_agent>(scRowCnt,
+                                                                       scColCnt,
+                                                                       maxLinSpeed,
+                                                                       maxAngSpeed,
+                                                                       maxAcceleration,
+                                                                        driverInst->getInterface(),
+                                                                       logFile
+                                                                       );
+            thread gaTr=guardInst->guardThread(kbQuitter);
+            guiC->disp();//< gui::disp works in the main thread.
+            /** Whith this easy step we stopped the main loop of the keyboard and driver thread \snippet this 6*/
+//[6]
+            kbQuitter=true;
+//[6]
+            gaTr.join();
+            guardInst.reset();
+            drvTr.join();
+            driverInst.reset();
+            logFile.close();
         }
-        kbQuitter=true;///< Whith this easy step we stopped the main loop of the keyboard and driver thread
-        drvTr.join();
+
+
         kbTr.join();
-        driverInst.reset();
+
         sceneMat.reset();
         kbInst.reset(nullptr);
         guiC.reset(nullptr);

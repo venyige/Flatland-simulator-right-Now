@@ -2,6 +2,7 @@
 #define INTERFACE_H
 #include<chrono>
 #include<vector>
+#include<mutex>
 namespace now{
 using namespace std;
 enum tailChar{u='|', ul='\\', l='-',  dl='/',  d='|', dr='\\', r='-', ur='/'};
@@ -11,13 +12,11 @@ typedef struct{
     char tailC=tailChar::u;
     char replacement=' ';
 }tail;
-
+/** public Typedefs and structs to share between driver and guardian agent*/
 class interface_d
 {
 public:
     interface_d(){}
-    /*** public Typedefs to share with guardian agent*/
-
     typedef struct {
          char X=0;///< actual x postition
          char Y=0;///< actual y postition
@@ -28,7 +27,21 @@ public:
         double linVel=0;///< linear velocity
         double linAcc=0;///< actual linear acceleration
     }mv_tb;///< Movable block
-    typedef struct :mv_tb{
+    typedef struct T:mv_tb{
+        T& operator =(T& inCar){
+            if(this!=&inCar){
+                this->X=inCar.X;
+                this->Y=inCar.Y;
+                this->dir=inCar.dir;
+                this->icDist=inCar.icDist;
+                this->linVel=inCar.linVel;
+                this->linAcc=inCar.linAcc;
+                this->angle=inCar.angle;
+                this->angVel=inCar.angVel;
+                this->angAcc=inCar.angAcc;
+            }
+            return *this;
+        }
         double angle=0;///< actual direction angle (rad*4/pi)
         double angVel=0;///< actual angular velocity (rotation speed)
         double angAcc=0;///< actual angular acceleration
@@ -36,11 +49,17 @@ public:
     typedef struct :mv_b{
          char dir=0;///< Snapped directions, multiplicators of pi/4
     }mv_f;///< Force, has position and named direction
-    mv_t car;
-    vector<mv_tb> blocks;
-    vector<mv_b> walls;
-    vector<mv_f> forces;
-
+    mv_t car;///< The car data structure instance
+    vector<mv_tb> blocks;///< Movable blocks
+    vector<mv_b> walls;///< Immobile wall blocks
+    vector<mv_f> forces;///< Force field blocks
+    unsigned char emBrake;///< Emergency brake mask issued by guardian agent
+    volatile double tLag;///< Worst case lag from command to execution, updated continuously in driver
+    mutex _mutex;///< Interface mutex to share with guardian agent
+    const double epsilon=1e-16;///< Epsilon to judge practical zero value of double precision variables
+    static constexpr unsigned int tSlot=10; ///< Sleep time for threads (ms)
+    enum blockType{noblock, wall_t, mobile_t, ffield_t};
 };
+
 }
 #endif // INTERFACE_H

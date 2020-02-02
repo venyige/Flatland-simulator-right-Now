@@ -1,0 +1,43 @@
+<h1 id="assignment">Assignment</h1>
+<p><a href="https://venyige.github.io/Flatland-simulator-right-Now/html/index.html">Back to Doxygen generated</a><br>
+Create a multi-threaded interactive simulation of a vehicle in a simplified world
+with text-mode and keyboard interfaces. Please provide gcc makefile and doxygen style
+code documentation in english.</p>
+<h2 id="world-">World:</h2>
+<ul>
+<li>The whole universe is flat and has 80x25 characters.</li>
+<li>The map of the world is loaded as plain text from file.</li>
+<li>&#39;#&#39; objects are considered as immovable rigid walls.</li>
+<li>&#39;&gt;&#39; &#39;&lt;&#39; &#39;v&#39; &#39;^&#39; objects represent force vectors of &quot;nature&quot;.</li>
+<li>&#39;~&#39; is a movable object that absorbs kinetic energy.</li>
+<li>&#39;x&#39; is the origin where the vehicle shall be placed.</li>
+<li>Newtonian laws of physics apply.<h2 id="vehicle-">Vehicle:</h2>
+</li>
+<li>It is a multi character construct consisting of a head and a tail. (e.g.&quot;o-&quot;) The tail has a heading visualization purpose only so collisions shall be calculated on the head part.</li>
+<li>It has two differentially driven &quot;wheels&quot;.</li>
+<li>It can rotate in place by 45 degrees (= 1 turn).</li>
+<li>It&#39;s linear and angular acceleration / deceleration is fixed. (1u/s)</li>
+<li>It can achieve a maximum linear speed of 3 grids per second.</li>
+<li>It&#39;s maximum angular velocity is 1 turn per second.</li>
+<li>Reversing is allowed.<h2 id="interactions-">Interactions:</h2>
+</li>
+<li>The vehicle is controlled by &quot;wasd&quot; buttons, where &#39;w&#39; is forward
+acceleration, &#39;a&#39; is rotating left.</li>
+<li>When a button is pressed the vehicle accelerates, on it&#39;s release it
+decelerates.</li>
+<li>Hitting the &#39;~&#39; movable object is allowed - its mass equals the
+vehicles.</li>
+<li>On collision &#39;~&#39; absorbs the vehicle&#39;s kinetic energy and
+moves until decelerated.</li>
+<li>&#39;~&#39; pushed against a wall becomes immovable.</li>
+<li>Hitting a wall the vehicle is trashed.</li>
+<li>If the head part of the vehicle collides with an arrow &#39;&gt;&#39; symbol the
+vehicle gains its maximum speed in the direction the symbol is pointing.
+Forces acting sideways or diagonal to course apply as angular
+velocities. (e.g. perpendicular to course, the vehicle is forced to turn
+into the opposite direction )<br><h2 id="-drive-assistant-">&quot;Drive Assistant&quot;</h2>
+In the above framework, create an agent that disregards user commands if there would
+be a fatal collision on course and warns the user to slow down if there is no user
+interaction but the event would occur due to current vehicle velocities.</li>
+</ul>
+

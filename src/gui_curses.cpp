@@ -13,8 +13,8 @@ gui_curses<rowC, colC>::gui_curses( const volatile char& kbState,
 {
     initscr();
     keypad(stdscr, true);
-    noecho();///< don't print out the "wasd"
-    curs_set(0);///< remove the cursor
+    noecho();//< don't print out the "wasd"
+    curs_set(0);//< remove the cursor
     nodelay(stdscr, TRUE);
 }
 template<size_t rowC, size_t colC>
@@ -39,7 +39,7 @@ void gui_curses<rowC, colC>::disp()
         refresh();
         napms(70);
     }
-
+_sceneMutex.unlock();
 
 }
 template<size_t rowC, size_t colC>

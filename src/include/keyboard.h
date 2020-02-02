@@ -1,15 +1,13 @@
 #ifndef KEYBOARD_H
 #define KEYBOARD_H
-
-#include "keyboard.h"
 #include<iostream>
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
 #include<thread>
 #include<mutex>
+#include<interface.h>
 namespace now{
 using namespace std;
-
 class keyboard
 {
 public:

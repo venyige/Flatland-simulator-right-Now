@@ -1,6 +1,10 @@
 #ifndef DI_MATH_H
 #define DI_MATH_H
-
+/** \file di_math.h
+ * \brief Driver's Inline Math functions:
+ * The utility functions take place in this block
+ * in order to make the driver thread function "physics"
+ * more readable*/
 #include<iostream>
 #include<chrono>
 #include<cmath>
@@ -14,15 +18,19 @@
 namespace now {
 using namespace std;
 
-/*** Driver's Inline Math functions:
- * the utility functions take place in this block
- * in order to make the driver thread function "physics"
- * more readable*/
-inline void getNextPos(interface_d::mv_b& nextBlockPos, const interface_d::mv_tb& moveBlock, const char rowC, const char colC){
+/** \brief Get the next postition
+ * Getting the next available position in the direction of the current pacing.
+*/
+inline void getNextPos(
+        interface_d::mv_b& nextBlockPos, ///< Reference to next position struct
+        const interface_d::mv_tb& moveBlock,///< Movable block, or recast car struct
+        const char rowC,///< Rowcount
+        const char colC///< Columncount
+        ){
     const char maxRow=rowC-1;
     const char maxCol=colC-1;
     switch (signbit(moveBlock.linVel)?(moveBlock.dir+4)%8:moveBlock.dir) {
-    case 0:///< Up
+    case 0://< Up
         if(moveBlock.Y==0){
             nextBlockPos.Y=maxRow;
         }else{
@@ -30,7 +38,7 @@ inline void getNextPos(interface_d::mv_b& nextBlockPos, const interface_d::mv_tb
         }
         nextBlockPos.X=moveBlock.X;
         break;
-    case 1:///< Up-left
+    case 1://< Up-left
         if(moveBlock.Y==0){
             nextBlockPos.Y=maxRow;
         }else{
@@ -42,7 +50,7 @@ inline void getNextPos(interface_d::mv_b& nextBlockPos, const interface_d::mv_tb
             nextBlockPos.X=moveBlock.X-1;
         }
         break;
-    case 2:///< Left
+    case 2://< Left
         if(moveBlock.X==0){
             nextBlockPos.X=maxCol;
         }else{
@@ -50,7 +58,7 @@ inline void getNextPos(interface_d::mv_b& nextBlockPos, const interface_d::mv_tb
         }
         nextBlockPos.Y=moveBlock.Y;
         break;
-    case 3:///< Down-left
+    case 3://< Down-left
         if(moveBlock.Y==maxRow){
             nextBlockPos.Y=0;
         }else{
@@ -62,7 +70,7 @@ inline void getNextPos(interface_d::mv_b& nextBlockPos, const interface_d::mv_tb
             nextBlockPos.X=moveBlock.X-1;
         }
         break;
-    case 4:///< Down
+    case 4://< Down
         if(moveBlock.Y==maxRow){
             nextBlockPos.Y=0;
         }else{
@@ -70,7 +78,7 @@ inline void getNextPos(interface_d::mv_b& nextBlockPos, const interface_d::mv_tb
         }
         nextBlockPos.X=moveBlock.X;
         break;
-    case 5:///< Down-right
+    case 5://< Down-right
         if(moveBlock.Y==maxRow){
             nextBlockPos.Y=0;
         }else{
@@ -82,7 +90,7 @@ inline void getNextPos(interface_d::mv_b& nextBlockPos, const interface_d::mv_tb
             nextBlockPos.X=moveBlock.X+1;
         }
         break;
-    case 6:///< Right
+    case 6://< Right
         if(moveBlock.X==maxCol){
             nextBlockPos.X=0;
         }else{
@@ -90,7 +98,7 @@ inline void getNextPos(interface_d::mv_b& nextBlockPos, const interface_d::mv_tb
         }
         nextBlockPos.Y=moveBlock.Y;
         break;
-    case 7:///< Up-right
+    case 7://< Up-right
         if(moveBlock.Y==0){
             nextBlockPos.Y=maxRow;
         }else{
@@ -107,8 +115,15 @@ inline void getNextPos(interface_d::mv_b& nextBlockPos, const interface_d::mv_tb
     }
 
 }
-
-inline void checkKbrdKeypair(unsigned char k1, unsigned char k2, double& vel, double& acc, const double maxAcc, const double epsilon){
+/** \brief Check key pairs:
+ * Checking of the opposite pairs of WASD buttons.*/
+inline void checkKbrdKeypair(unsigned char k1, ///< Key 1 -  W or A
+                             unsigned char k2, ///< Key 2 - S or D
+                             double& vel, ///< Velocity
+                             double& acc, ///< Acceleration
+                             const double maxAcc, ///< Maximum of acceleration
+                             const double epsilon ///< Epsilon value as defined in the main thread function
+                             ){
     if(k1 && !k2){
         if(vel<-epsilon){
             acc=2.0*maxAcc;
@@ -153,10 +168,10 @@ inline void angular_snap(double& distance, interface_d& intFac){
 }
 
 inline void linear_snap(double& distance, interface_d::mv_tb& moveBlock, char rowMax, char colMax){
-    const double sqrt2=sqrt(2.0);///< Freeze sqrt(2) value in order to boost the calculations.
+    const double sqrt2=sqrt(2.0);//< Freeze sqrt(2) value in order to boost the calculations.
 
     switch (moveBlock.dir) {
-    case 0:///< Up
+    case 0://< Up
         if(distance>0.5){
             if(moveBlock.Y==0){
                 moveBlock.Y=rowMax;
@@ -173,7 +188,7 @@ inline void linear_snap(double& distance, interface_d::mv_tb& moveBlock, char ro
             distance+=1.0;
         }
         break;
-    case 2:///< Left
+    case 2://< Left
         if(distance>0.5){
             if(moveBlock.X==0){
                 moveBlock.X=colMax;
@@ -190,7 +205,7 @@ inline void linear_snap(double& distance, interface_d::mv_tb& moveBlock, char ro
             distance+=1.0;
         }
         break;
-    case 4:///< Down
+    case 4://< Down
         if(distance>0.5){
             if(moveBlock.Y==rowMax){
                 moveBlock.Y=0;
@@ -207,7 +222,7 @@ inline void linear_snap(double& distance, interface_d::mv_tb& moveBlock, char ro
             distance+=1.0;
         }
         break;
-    case 6:///< Right
+    case 6://< Right
         if(distance>0.5){
             if(moveBlock.X==colMax){
                 moveBlock.X=0;
@@ -224,7 +239,7 @@ inline void linear_snap(double& distance, interface_d::mv_tb& moveBlock, char ro
             distance+=1.0;
         }
         break;
-    case 1:///< Up-Left
+    case 1://< Up-Left
         if(distance>sqrt2/2.0){
             if(moveBlock.X==0){
                 moveBlock.X=colMax;
@@ -251,7 +266,7 @@ inline void linear_snap(double& distance, interface_d::mv_tb& moveBlock, char ro
             distance+=sqrt2;
         }
         break;
-    case 3:///< Down-Left
+    case 3://< Down-Left
         if(distance>sqrt2/2.0){
             if(moveBlock.X==0){
                 moveBlock.X=colMax;
@@ -278,7 +293,7 @@ inline void linear_snap(double& distance, interface_d::mv_tb& moveBlock, char ro
             distance+=sqrt2;
         }
         break;
-    case 5:///< Down-Right
+    case 5://< Down-Right
         if(distance>sqrt2/2.0){
             if(moveBlock.X==colMax){
                 moveBlock.X=0;
@@ -305,7 +320,7 @@ inline void linear_snap(double& distance, interface_d::mv_tb& moveBlock, char ro
             distance+=sqrt2;
         }
         break;
-    case 7:///< Up-Right
+    case 7://< Up-Right
         if(distance>sqrt2/2.0){
             if(moveBlock.X==colMax){
                 moveBlock.X=0;

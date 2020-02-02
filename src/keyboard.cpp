@@ -24,7 +24,7 @@ void keyboard::state(volatile char& mState)
         while(_kbdMutex.try_lock());
         mState=_state;
         _kbdMutex.unlock();
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        std::this_thread::sleep_for(std::chrono::milliseconds(interface_d::tSlot));
     }
 }
 
