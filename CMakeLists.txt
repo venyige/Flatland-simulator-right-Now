@@ -39,6 +39,7 @@ set(SOURCES
   src/gui_curses.cpp
   src/keyboard.cpp
   src/guard_agent.cpp
+  src/directions.cpp
   )
 
 set(HEADERS
@@ -48,6 +49,7 @@ set(HEADERS
     src/include/driver.h
     src/include/interface.h
     src/include/di_math.h
+    src/include/directions.h
   )
 set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-std=c++17 -pthread")
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})

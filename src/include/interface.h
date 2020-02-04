@@ -3,6 +3,7 @@
 #include<chrono>
 #include<vector>
 #include<mutex>
+#include<directions.h>
 namespace now{
 using namespace std;
 enum tailChar{u='|', ul='\\', l='-',  dl='/',  d='|', dr='\\', r='-', ur='/'};
@@ -22,7 +23,7 @@ public:
          char Y=0;///< actual y postition
     }mv_b;///< Block position
     typedef struct:mv_b {
-         char dir=0;///< Snapped directions, multiplicators of pi/4
+         d_t dir=0;///< Snapped directions, multiplicators of pi/4
          double icDist;///< inter-cellar distance, that is the remaining in between snappings
         double linVel=0;///< linear velocity
         double linAcc=0;///< actual linear acceleration
@@ -46,8 +47,9 @@ public:
         double angVel=0;///< actual angular velocity (rotation speed)
         double angAcc=0;///< actual angular acceleration
     }mv_t;///< Dynamic data tailored to car
-    typedef struct :mv_b{
-         char dir=0;///< Snapped directions, multiplicators of pi/4
+    typedef struct T2:mv_b{
+        T2(char _X, char _Y, char c):mv_b{_X,_Y}{dir=char(c);}
+         d_t dir=0;///< Snapped directions, multiplicators of pi/4
     }mv_f;///< Force, has position and named direction
     mv_t car;///< The car data structure instance
     vector<mv_tb> blocks;///< Movable blocks
@@ -56,7 +58,7 @@ public:
     unsigned char emBrake;///< Emergency brake mask issued by guardian agent
     volatile double tLag;///< Worst case lag from command to execution, updated continuously in driver
     mutex _mutex;///< Interface mutex to share with guardian agent
-    const double epsilon=1e-16;///< Epsilon to judge practical zero value of double precision variables
+    static constexpr double epsilon=1e-16;///< Epsilon to judge practical zero value of double precision variables
     static constexpr unsigned int tSlot=10; ///< Sleep time for threads (ms)
     enum blockType{noblock, wall_t, mobile_t, ffield_t};
 };

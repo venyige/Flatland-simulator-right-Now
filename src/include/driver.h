@@ -277,20 +277,7 @@ uint8_t tempBrake;
         for(auto iii:intFac.forces){
             if((static_cast<interface_d::mv_f>(iii).X==intFac.car.X)&&(static_cast<interface_d::mv_f>(iii).Y==intFac.car.Y)){
                 inForce=true;
-                switch (static_cast<interface_d::mv_f>(iii).dir) {
-                case '^':
-                    intFac.car.dir=0;
-                    break;
-                case '<':
-                    intFac.car.dir=2;
-                    break;
-                case 'v':
-                    intFac.car.dir=4;
-                    break;
-                case '>':
-                    intFac.car.dir=6;
-                    break;
-                }
+                intFac.car.dir=static_cast<interface_d::mv_f>(iii).dir;
             }
         }
 
@@ -375,7 +362,7 @@ uint8_t tempBrake;
                     iii.linAcc=-_maxAcc;
                     iii.linVel=abs(intFac.car.linVel);
                     iii.icDist=intFac.car.icDist;
-                    iii.dir=signbit(intFac.car.linVel)?(intFac.car.dir+4)%8:intFac.car.dir;
+                    iii.dir=signbit(intFac.car.linVel)?int(d_t(intFac.car.dir)+4):int(intFac.car.dir);
                 }
                 intFac.car.X=movBuf.X;
                 intFac.car.Y=movBuf.Y;
@@ -539,7 +526,7 @@ uint8_t tempBrake;
                 (*_sceneMat)[iii.Y][iii.X]='~';
             }
             for(auto iii:intFac.forces){
-                (*_sceneMat)[iii.Y][iii.X]=static_cast<interface_d::mv_f>(iii).dir;
+                (*_sceneMat)[iii.Y][iii.X]=char(static_cast<interface_d::mv_f>(iii).dir);
             }
 
             (*_sceneMat)[intFac.car.Y][intFac.car.X]='O';

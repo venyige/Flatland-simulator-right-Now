@@ -2,28 +2,164 @@
 #define GUARD_AGENT_CPP
 #include "guard_agent.h"
 namespace now{
-guard_agent::guard_agent(const char rowC,
-                         const char colC,
+guard_agent::guard_agent(const size_t rowC,
+                         const size_t colC,
                          const double maxLinVel,
                          const double maxAngVel,
                          const double maxAcc,
                          interface_d& intFac,
-                         ofstream& outLog):
+                         ofstream& outLog,
+                         bool ctrCar,
+                         bool logOn,
+                         bool logVerb,
+                         bool logTml):
     _outLog(outLog),
     _rowC(rowC),
     _colC(colC),
     _maxLinVel(maxLinVel),
     _maxAngVel(maxAngVel),
     _maxAcc(maxAcc),
-    _intFac(intFac)
+    _intFac(intFac),
+    _ctrCar(ctrCar),
+    _logOn(logOn),
+    _logVerb(logVerb),
+    _logTm(logTml)
     {}
+void collectTraps2(const size_t rowC,
+                  const size_t colC,
+                  interface_d::mv_t& tCar,
+                  vector<interface_d::mv_b>& chkList,
+                  vector<interface_d::mv_b>& flist,
+                  const interface_d& intFac,
+                  const size_t stopRange,
+                  bool& isTrap,
+                  vector<interface_d::mv_f>::const_iterator& iiForce,
+                  vector<interface_d::mv_b>::const_iterator& iiWall,
+                   interface_d::mv_b& nextPos
+                  ){
 
+    for(uint8_t rii=0;rii<stopRange;rii++){
+        getNextPos(nextPos, tCar, rowC, colC);
+        iiWall=find_if(intFac.walls.begin(), intFac.walls.end(), [&nextPos](const interface_d::mv_b& ffi)->bool{return ((ffi.X==nextPos.X)&&(ffi.Y==nextPos.Y));});
+            if(iiWall!=intFac.walls.end()){
+                flist.push_back(interface_d::mv_f(*iiForce));
+                isTrap=true;
+                return;
+            }
+        iiForce=find_if(intFac.forces.begin(), intFac.forces.end(), [&nextPos](const interface_d::mv_f& ffi)->bool{return ((ffi.X==nextPos.X)&&(ffi.Y==nextPos.Y));});
+        if(iiForce!=intFac.forces.end()){
+            tCar.X=nextPos.X;
+            tCar.Y=nextPos.Y;
+            tCar.dir=iiForce->dir;
+
+            if((chkList.end()==find_if(chkList.begin(), chkList.end(), [&nextPos](const interface_d::mv_b& ffi)->bool{return ((ffi.X==nextPos.X)&&(ffi.Y==nextPos.Y));}))&&
+                    (flist.end()==find_if(flist.begin(), flist.end(), [&nextPos](const interface_d::mv_b& ffi)->bool{return ((ffi.X==nextPos.X)&&(ffi.Y==nextPos.Y));}))){
+
+                flist.push_back(interface_d::mv_f(*iiForce));
+            }
+            collectTraps2(rowC, colC, tCar, chkList, flist, intFac, stopRange, isTrap, iiForce,iiWall, nextPos);
+            return;
+
+        }
+        tCar.X=nextPos.X;
+        tCar.Y=nextPos.Y;
+
+    }
+}
+
+void collectTraps(const size_t rowC,
+                  const size_t colC,
+                  interface_d::mv_t& tCar,
+                  vector<interface_d::mv_b>& chkList,
+                  vector<interface_d::mv_b>& flist,
+                  const interface_d& intFac,
+                  const size_t stopRange,
+                  bool& isTrap,
+                  vector<interface_d::mv_f>::const_iterator& iiForce,
+                  vector<interface_d::mv_b>::const_iterator& iiWall,
+                  interface_d::mv_b& nextPos
+                  ){
+
+    for(uint8_t rii=0;rii<stopRange;rii++){
+        getNextPos(nextPos, tCar, rowC, colC);
+        iiWall=find_if(intFac.walls.begin(), intFac.walls.end(), [&nextPos](const interface_d::mv_b& ffi)->bool{return ((ffi.X==nextPos.X)&&(ffi.Y==nextPos.Y));});
+            if(iiWall!=intFac.walls.end()){
+ //               flist.push_back(interface_d::mv_f(*iiForce));
+                isTrap=true;
+                return;
+            }
+        iiForce=find_if(intFac.forces.begin(), intFac.forces.end(), [&nextPos](const interface_d::mv_f& ffi)->bool{return ((ffi.X==nextPos.X)&&(ffi.Y==nextPos.Y));});
+        if(iiForce!=intFac.forces.end()){
+            tCar.X=nextPos.X;
+            tCar.Y=nextPos.Y;
+            tCar.dir=iiForce->dir;
+
+            if((chkList.end()==find_if(chkList.begin(), chkList.end(), [&nextPos](const interface_d::mv_b& ffi)->bool{return ((ffi.X==nextPos.X)&&(ffi.Y==nextPos.Y));}))&&
+                    (flist.end()==find_if(flist.begin(), flist.end(), [&nextPos](const interface_d::mv_b& ffi)->bool{return ((ffi.X==nextPos.X)&&(ffi.Y==nextPos.Y));}))){
+
+                flist.push_back(interface_d::mv_f(*iiForce));
+            }
+            collectTraps(rowC, colC, tCar, chkList, flist, intFac, stopRange, isTrap, iiForce,iiWall, nextPos);
+            return;
+
+        }
+        tCar.X=nextPos.X;
+        tCar.Y=nextPos.Y;
+
+    }
+}
+
+/** Localize deathtraps*/
+inline void locDeathtraps(
+        interface_d& intFac,///< Interface struct with all the necessary data about scene blocks.
+        vector<interface_d::mv_b>& wallVec,///< Guardien agent's own vector of wall blocks.
+        const double maxLinVel,///< Max linar velocity of car.
+        const double maxAcc,///< Max linar acceleration of car.
+        const size_t rowC,///< Max linar acceleration of car.
+        const size_t colC,///< Max linar acceleration of car.
+        const function<bool(const interface_d::mv_b&)>& isWallAt,
+        const function<bool(const interface_d::mv_f&)>& isForceAt
+        ){
+
+    const double tStop=maxLinVel/maxAcc;
+    const double dStop=maxLinVel*tStop-maxAcc*tStop*tStop/2.0;
+    const size_t stopRange=size_t(round(dStop));
+    interface_d::mv_t tCar;
+    tCar.linAcc=tCar.linVel=maxLinVel;
+    vector<interface_d::mv_b> checkedList{0};
+    vector<interface_d::mv_b> checkedInOneRun{0};
+    bool isTrap=false;
+    vector<interface_d::mv_b>::const_iterator iiWall;
+    vector<interface_d::mv_f>::const_iterator iiForce;
+    interface_d::mv_b nextPos;
+
+    for(size_t iii=0; iii<intFac.forces.size(); iii++){
+        nextPos.X=intFac.forces[iii].X;
+        nextPos.Y=intFac.forces[iii].Y;
+
+        if(checkedList.end()!=find_if(checkedList.begin(), checkedList.end(), [&nextPos](const interface_d::mv_b& ffi)->bool{return ((ffi.X==nextPos.X)&&(ffi.Y==nextPos.Y));})){
+            continue;
+        }
+        tCar.X=intFac.forces[iii].X;
+        tCar.Y=intFac.forces[iii].Y;
+        tCar.dir=intFac.forces[iii].dir;
+        isTrap=false;
+        checkedInOneRun.push_back(intFac.forces[iii]);
+        collectTraps(rowC, colC, tCar, checkedList, checkedInOneRun, intFac, stopRange, isTrap, iiForce, iiWall, nextPos);
+
+        if(isTrap){
+            wallVec.insert(wallVec.end(), checkedInOneRun.begin(), checkedInOneRun.end());
+        }
+        checkedList.insert(checkedList.end(), checkedInOneRun.begin(), checkedInOneRun.end());
+        checkedInOneRun.clear();
+    }
+}
 inline void carPosLog(ofstream& outLog, interface_d& intFac){
 
     outLog<<string(12,' ')<<"Measured timeslot="<<to_string(intFac.tLag)<<endl;
     outLog<<string(12,' ')<<"Emergency brake="<<to_string(intFac.emBrake)<<endl;
     outLog<<string(12,' ')<<"Position data: X="<<to_string(intFac.car.X)<<", Y="<<to_string(intFac.car.Y)<<endl;
-    outLog<<string(12,' ')<<"Direction="<<to_string(intFac.car.dir)<<endl;
+    outLog<<string(12,' ')<<"Direction="<<to_string(int(intFac.car.dir))<<endl;
     outLog<<string(12,' ')<<"Linear acceleration="<<to_string(intFac.car.linAcc)<<endl;
     outLog<<string(12,' ')<<"Linear speed="<<to_string(intFac.car.linVel)<<endl;
     outLog<<string(12,' ')<<"Angular acceleration="<<to_string(intFac.car.angAcc)<<endl;
@@ -32,8 +168,9 @@ inline void carPosLog(ofstream& outLog, interface_d& intFac){
     outLog<<string(12,' ')<<"Residual trace="<<to_string(intFac.car.icDist)<<endl<<endl;
 
 }
-inline interface_d::blockType checkCollision(char _rowC,
-                           char _colC,
+inline interface_d::blockType checkCollision(const size_t _rowC,
+                           const size_t _colC,
+                           vector<interface_d::mv_b>& guardWalls,
                            uint8_t brakeRange,
                            interface_d::mv_t& testCar,
                            interface_d::mv_b& nextPos,
@@ -47,8 +184,8 @@ inline interface_d::blockType checkCollision(char _rowC,
     vector<interface_d::mv_f>::const_iterator iiFf;
     for(uint8_t iii=0; iii<uint8_t(round(1.5*brakeRange)); iii++){
         getNextPos( nextPos, testCar, _rowC, _colC);
-        iiWall=find_if(intFac.walls.begin(), intFac.walls.end(), isWallAt);
-        if(iiWall!=intFac.walls.end()){
+        iiWall=find_if(guardWalls.begin(), guardWalls.end(), isWallAt);
+        if(iiWall!=guardWalls.end()){
             retVal=interface_d::wall_t;
             if(iii<brakeRange){
                 emergencyBrakeOn=true;
@@ -74,8 +211,7 @@ inline interface_d::blockType checkCollision(char _rowC,
 void guard_agent::guard(volatile bool& quitter){
     interface_d::mv_t testCar;
     interface_d::mv_b nextPos;
-    interface_d::mv_b logPos;
-    bool ifLog=false;
+    interface_d::mv_t logPos;
     double brakeTime=0.0;
     unsigned char brakeRange=1;
     using hrClk=chrono::high_resolution_clock ;
@@ -83,6 +219,7 @@ void guard_agent::guard(volatile bool& quitter){
     hrClk::time_point lastTime;
     bool emergencyBrakeOn=false;
     double brakeRangeDbl;
+    guardWalls = _intFac.walls;
     const double sqrt2=sqrt(2.0);
     uint8_t emBrake;
     interface_d::blockType chkRes;
@@ -90,9 +227,14 @@ void guard_agent::guard(volatile bool& quitter){
 //[tslip]
     const double timeSlip=safeC*double(interface_d::tSlot)*1e-3;
 //[tslip]
-    function<bool(const interface_d::mv_b&)> isWallAt = [&nextPos](interface_d::mv_b iiW)->bool{return (iiW.X==nextPos.X)&&(iiW.Y==nextPos.Y);};
+    function<bool(const interface_d::mv_b&)> isWallAt = [&nextPos](auto iiW)->bool{return (iiW.X==nextPos.X)&&(iiW.Y==nextPos.Y);};
+    function<bool(const interface_d::mv_f&)> isForceAt = [&nextPos](auto iiW)->bool{return (iiW.X==nextPos.X)&&(iiW.Y==nextPos.Y);};
 
+    locDeathtraps(_intFac, guardWalls, _maxLinVel, _maxAcc, _rowC, _colC, isWallAt, isForceAt);
+    for_each(guardWalls.begin(), guardWalls.end(), [&](interface_d::mv_b& iii){this->_outLog<<"x: "<<to_string(iii.X)<<", y:"<<to_string(iii.Y)<<endl;});
+        this->_outLog<<"Deathtrap size: "<<to_string(guardWalls.size())<<endl;
     lastTime=hrClk::now();
+
     while(!quitter){
         {// from here _intFac._mutex lock to the closing brace
             const std::lock_guard<std::mutex> lock(_intFac._mutex);
@@ -100,13 +242,14 @@ void guard_agent::guard(volatile bool& quitter){
         emBrake=0;
 
         testCar=_intFac.car;
-        ifLog=false;
-        if((logPos.X!=testCar.X)||(logPos.Y!=testCar.Y)){
-            ifLog=true;
-            lastTime=hrClk::now();
+        if((logPos.X!=testCar.X)||(logPos.Y!=testCar.Y)||(int(logPos.dir)!=int(testCar.dir))){
+
             logPos.X=testCar.X;
             logPos.Y=testCar.Y;
-//            carPosLog(this->_outLog, _intFac);
+            logPos.dir=testCar.dir;
+            if(_logOn&&_logVerb){
+                carPosLog(this->_outLog, _intFac);
+            }
         }
         if(abs(testCar.linVel)>_intFac.epsilon){
             brakeTime= abs((testCar.linVel+testCar.linAcc*timeSlip)/_maxAcc); // max value: _maxLinVel/_maxAcc;
@@ -131,12 +274,14 @@ void guard_agent::guard(volatile bool& quitter){
 //[f_l_brake]
         if((chkRes=checkCollision(_rowC,
                           _colC,
+                                  guardWalls,
                           brakeRange,
                           testCar,
                           nextPos,
                           _intFac,
                           isWallAt,
                           emergencyBrakeOn))!=interface_d::blockType::noblock){
+
             switch (chkRes) {
             case interface_d::blockType::wall_t:
                 if(emergencyBrakeOn){
@@ -145,26 +290,27 @@ void guard_agent::guard(volatile bool& quitter){
                     }else{
                         emBrake|=4; //backward linear acceleration lock
                     }
-                    if(ifLog){
+                    if(_logOn){
                         this->_outLog<<"Collision emergency brake applied!\nWall block position: X="<<to_string(nextPos.X)<< " Y="<<to_string(nextPos.Y)<<endl<<"emergency brake: "<<to_string(emBrake)<<endl;
                     }
                 }else{
-                    if(ifLog)
+                    if(_logOn)
                         this->_outLog<<"Warning!\nCollision emergency.\nWall block position: X="<<to_string(nextPos.X)<< " Y="<<to_string(nextPos.Y)<<endl;
                 }
                 break;
             case interface_d::blockType::mobile_t:
-                if(ifLog)
+                if(_logOn)
                     this->_outLog<<"Warning!\nObstacle on track.\nMovable block position: X="<<to_string(nextPos.X)<< " Y="<<to_string(nextPos.Y)<<endl;
                 break;
             case interface_d::blockType::ffield_t:
-                if(ifLog)
+                if(_logOn)
                     this->_outLog<<"Warning!\nForce field danger.\nForce field position: X="<<to_string(nextPos.X)<< " Y="<<to_string(nextPos.Y)<<endl;
                 break;
             default:
                 break;
             }
         }
+
 //[f_l_brake]
         testCar=_intFac.car;
         if((abs(testCar.linVel)>_intFac.epsilon)&&(abs(testCar.angVel)>_intFac.epsilon)){
@@ -184,6 +330,7 @@ void guard_agent::guard(volatile bool& quitter){
             }
             if((chkRes=checkCollision(_rowC,
                               _colC,
+                                      guardWalls,
                               brakeRange,
                               testCar,
                               nextPos,
@@ -198,20 +345,20 @@ void guard_agent::guard(volatile bool& quitter){
                         }else{
                             emBrake|=8; //backward angular acceleration lock
                         }
-                        if(ifLog){
+                        if(_logOn){
                             this->_outLog<<"Collision emergency steering lock applied!\nWall block position: X="<<to_string(nextPos.X)<< " Y="<<to_string(nextPos.Y)<<endl;
                         }
                     }else{
-                        if(ifLog)
+                        if(_logOn)
                             this->_outLog<<"Warning!\nCollision emergency.\nWall block position: X="<<to_string(nextPos.X)<< " Y="<<to_string(nextPos.Y)<<endl;
                     }
                     break;
                 case interface_d::blockType::mobile_t:
-                    if(ifLog)
+                    if(_logOn)
                         this->_outLog<<"Warning!\nObstacle on track.\nMovable block position: X="<<to_string(nextPos.X)<< " Y="<<to_string(nextPos.Y)<<endl;
                     break;
                 case interface_d::blockType::ffield_t:
-                    if(ifLog)
+                    if(_logOn)
                         this->_outLog<<"Warning!\nForce field danger.\nForce field position: X="<<to_string(nextPos.X)<< " Y="<<to_string(nextPos.Y)<<endl;
                     break;
                 default:
@@ -221,15 +368,15 @@ void guard_agent::guard(volatile bool& quitter){
 
         }
 
-        if(chrono::duration_cast<chrono::duration<double>>( hrClk::now()-lastTime).count()>logFreq){
-            ifLog=true;
+        if(_logTm && (chrono::duration_cast<chrono::duration<double>>( hrClk::now()-lastTime).count()>logFreq)){
             lastTime=hrClk::now();
-//            carPosLog(this->_outLog, _intFac);
+            carPosLog(this->_outLog, _intFac);
         }
 
 
-
-        _intFac.emBrake=emBrake;
+        if(_ctrCar){
+            _intFac.emBrake=emBrake;
+        }
         }
 //        _intFac._mutex.unlock();
         /** Send the guardian agent thread to sleep letting the others do their work.\snippet this sleep*/

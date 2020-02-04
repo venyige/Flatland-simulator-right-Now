@@ -1,6 +1,7 @@
 var searchData=
 [
   ['t',['T',['../structnow_1_1interface__d_1_1T.html',1,'now::interface_d']]],
+  ['t2',['T2',['../structnow_1_1interface__d_1_1T2.html',1,'now::interface_d::T2'],['../structnow_1_1interface__d_1_1T2.html#a077cc082239d9053c7982f58f20594ac',1,'now::interface_d::T2::T2()']]],
   ['tail',['tail',['../namespacenow.html#structnow_1_1tail',1,'now']]],
   ['tail_5fproc',['tail_proc',['../namespacenow.html#a995bc683c5b5b0e15360d5022e6de9c6',1,'now']]],
   ['tailc',['tailC',['../namespacenow.html#a44986a6d1cf992a80c1856bb8049643d',1,'now::tail']]],

@@ -17,104 +17,40 @@
 
 namespace now {
 using namespace std;
-
 /** \brief Get the next postition
  * Getting the next available position in the direction of the current pacing.
 */
 inline void getNextPos(
         interface_d::mv_b& nextBlockPos, ///< Reference to next position struct
         const interface_d::mv_tb& moveBlock,///< Movable block, or recast car struct
-        const char rowC,///< Rowcount
-        const char colC///< Columncount
+        const size_t rowC,///< Rowcount
+        const size_t colC,///< Columncount
+        const unsigned int numSteps=1
         ){
-    const char maxRow=rowC-1;
-    const char maxCol=colC-1;
-    switch (signbit(moveBlock.linVel)?(moveBlock.dir+4)%8:moveBlock.dir) {
-    case 0://< Up
-        if(moveBlock.Y==0){
-            nextBlockPos.Y=maxRow;
-        }else{
-            nextBlockPos.Y=moveBlock.Y-1;
-        }
-        nextBlockPos.X=moveBlock.X;
-        break;
-    case 1://< Up-left
-        if(moveBlock.Y==0){
-            nextBlockPos.Y=maxRow;
-        }else{
-            nextBlockPos.Y=moveBlock.Y-1;
-        }
-        if(moveBlock.X==0){
-            nextBlockPos.X=maxCol;
-        }else{
-            nextBlockPos.X=moveBlock.X-1;
-        }
-        break;
-    case 2://< Left
-        if(moveBlock.X==0){
-            nextBlockPos.X=maxCol;
-        }else{
-            nextBlockPos.X=moveBlock.X-1;
-        }
-        nextBlockPos.Y=moveBlock.Y;
-        break;
-    case 3://< Down-left
-        if(moveBlock.Y==maxRow){
-            nextBlockPos.Y=0;
-        }else{
-            nextBlockPos.Y=moveBlock.Y+1;
-        }
-        if(moveBlock.X==0){
-            nextBlockPos.X=maxCol;
-        }else{
-            nextBlockPos.X=moveBlock.X-1;
-        }
-        break;
-    case 4://< Down
-        if(moveBlock.Y==maxRow){
-            nextBlockPos.Y=0;
-        }else{
-            nextBlockPos.Y=moveBlock.Y+1;
-        }
-        nextBlockPos.X=moveBlock.X;
-        break;
-    case 5://< Down-right
-        if(moveBlock.Y==maxRow){
-            nextBlockPos.Y=0;
-        }else{
-            nextBlockPos.Y=moveBlock.Y+1;
-        }
-        if(moveBlock.X==maxCol){
-            nextBlockPos.X=0;
-        }else{
-            nextBlockPos.X=moveBlock.X+1;
-        }
-        break;
-    case 6://< Right
-        if(moveBlock.X==maxCol){
-            nextBlockPos.X=0;
-        }else{
-            nextBlockPos.X=moveBlock.X+1;
-        }
-        nextBlockPos.Y=moveBlock.Y;
-        break;
-    case 7://< Up-right
-        if(moveBlock.Y==0){
-            nextBlockPos.Y=maxRow;
-        }else{
-            nextBlockPos.Y=moveBlock.Y-1;
-        }
-        if(moveBlock.X==maxCol){
-            nextBlockPos.X=0;
-        }else{
-            nextBlockPos.X=moveBlock.X+1;
-        }
-        break;
-
-
+    int X=int(moveBlock.X),Y=int(moveBlock.Y);
+    d_t locDir=((abs(moveBlock.linVel)>interface_d::epsilon)&&signbit(moveBlock.linVel))?int(d_t(moveBlock.dir)+4):int(moveBlock.dir);
+    if(locDir.hasUp()){
+        Y-=int(numSteps);
+    }else if(locDir.hasDown()){
+        Y+=int(numSteps);
     }
-
+    if(locDir.hasLeft()){
+        X-=int(numSteps);
+    }else if(locDir.hasRight()){
+        X+=int(numSteps);
+    }
+    X%=colC;
+    Y%=rowC;
+    if(X<0){
+        X+=colC;
+    }
+    if(Y<0){
+        Y+=rowC;
+    }
+    nextBlockPos.X=X;
+    nextBlockPos.Y=Y;
 }
+
 /** \brief Check key pairs:
  * Checking of the opposite pairs of WASD buttons.*/
 inline void checkKbrdKeypair(unsigned char k1, ///< Key 1 -  W or A
@@ -151,18 +87,10 @@ inline void checkKbrdKeypair(unsigned char k1, ///< Key 1 -  W or A
 
 inline void angular_snap(double& distance, interface_d& intFac){
     if(distance>0.5){
-        if(intFac.car.dir==7){
-            intFac.car.dir=0;
-        }else{
-            intFac.car.dir++;
-        }
+        intFac.car.dir++;
         distance-=1.0;
     }else if(distance<-0.5){
-        if(intFac.car.dir==0){
-            intFac.car.dir=7;
-        }else{
-            intFac.car.dir--;
-        }
+        intFac.car.dir--;
         distance+=1.0;
     }
 }
@@ -170,7 +98,7 @@ inline void angular_snap(double& distance, interface_d& intFac){
 inline void linear_snap(double& distance, interface_d::mv_tb& moveBlock, char rowMax, char colMax){
     const double sqrt2=sqrt(2.0);//< Freeze sqrt(2) value in order to boost the calculations.
 
-    switch (moveBlock.dir) {
+    switch (int(moveBlock.dir)) {
     case 0://< Up
         if(distance>0.5){
             if(moveBlock.Y==0){
@@ -352,7 +280,7 @@ inline void linear_snap(double& distance, interface_d::mv_tb& moveBlock, char ro
 }
 
 inline void tail_proc(interface_d& intFac,  tail& tailC, char rowMax, char colMax){
-    switch (intFac.car.dir) {
+    switch (int(intFac.car.dir)) {
     case 0:
         if(intFac.car.Y==rowMax){
             tailC.Y=0;
@@ -474,7 +402,7 @@ for(size_t iii=0; iii<_rowC; iii++)
         case '<':
         case 'v':
         case '>':
-            intFac.forces.push_back(interface_d::mv_f{char(jjj), char(iii), (*_sceneMat)[iii][jjj]});
+            intFac.forces.push_back(interface_d::mv_f(char(jjj), char(iii), char((*_sceneMat)[iii][jjj])));
             break;
 
         }

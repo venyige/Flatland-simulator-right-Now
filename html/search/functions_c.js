@@ -1,5 +1,6 @@
 var searchData=
 [
-  ['tail_5fproc',['tail_proc',['../namespacenow.html#a995bc683c5b5b0e15360d5022e6de9c6',1,'now']]],
-  ['test',['test',['../classnow_1_1gui__curses.html#aec1fde7ed281876482766f4025a9265c',1,'now::gui_curses']]]
+  ['setarr',['setArr',['../classd__t.html#a871ae50802df4a173f0dd2fc15465298',1,'d_t::setArr(const array&lt; uint8_t, 2 &gt; &amp;a)'],['../classd__t.html#afe59a80850e66d708d4764d4b87ec244',1,'d_t::setArr(const array&lt; dir_t, 2 &gt; &amp;a)']]],
+  ['state',['state',['../classnow_1_1keyboard.html#ad2a70d59d6a8aa17b50b9644a29ad762',1,'now::keyboard']]],
+  ['statethread',['stateThread',['../classnow_1_1keyboard.html#a7c74eae6e00f794aadec0c1c22ec158b',1,'now::keyboard']]]
 ];

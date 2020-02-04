@@ -129,6 +129,29 @@ int main(int argc, char** argv)
         sceneMat.reset();
         return 1;
     }else {
+        bool driverGuardCtr=false;
+        bool driverGuardLog=false;
+        bool driverGuardVerbose=false;
+        bool driverGuardTimelyLog=false;
+        if(argc>2){
+            string cmd=string(argv[2]);
+            if((cmd.length()>1)&&(argv[2][0]=='-')){
+
+                if ((cmd.find('c') != std::string::npos)||(cmd.find('C') != std::string::npos)){
+                    driverGuardCtr=true;
+                }
+                if ((cmd.find('l') != std::string::npos)||(cmd.find('L') != std::string::npos)){
+                    driverGuardLog=true;
+                }
+                if ((cmd.find('v') != std::string::npos)||(cmd.find('V') != std::string::npos)){
+                    driverGuardVerbose=true;
+                }
+                if ((cmd.find('t') != std::string::npos)||(cmd.find('T') != std::string::npos)){
+                    driverGuardTimelyLog=true;
+                }
+
+            }
+        }
         /** Bitwise keyboard indicator  - lsb:w,W, lsb+1:a,A lsb+2:s,S lsb+3:d,D \snippet this 3*/
         //[3]
         volatile char kbState;
@@ -168,7 +191,11 @@ int main(int argc, char** argv)
                                                                        maxAngSpeed,
                                                                        maxAcceleration,
                                                                         driverInst->getInterface(),
-                                                                       logFile
+                                                                       logFile,
+                                                                       driverGuardCtr,
+                                                                       driverGuardLog,
+                                                                       driverGuardVerbose,
+                                                                       driverGuardTimelyLog
                                                                        );
             thread gaTr=guardInst->guardThread(kbQuitter);
             guiC->disp();//< gui::disp works in the main thread.
