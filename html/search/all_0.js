@@ -5,6 +5,7 @@ var searchData=
   ['_5fcolc',['_colC',['../classnow_1_1guard__agent.html#a8a1cc81ad7d8751d219dae67d4d7d9cf',1,'now::guard_agent::_colC()'],['../classnow_1_1gui__curses.html#a5e76191782555fb65698f7560a7aaa9d',1,'now::gui_curses::_colC()']]],
   ['_5fctrcar',['_ctrCar',['../classnow_1_1guard__agent.html#acacaa3230cd0b4ce5ae49b0eb521cc05',1,'now::guard_agent']]],
   ['_5fdata',['_data',['../classd__t.html#a0fd12199a4dce644e9e65e92ed422210',1,'d_t']]],
+  ['_5fdtplus',['_dtPlus',['../classnow_1_1guard__agent.html#a90aa554b03c98d28b146039a763f5e39',1,'now::guard_agent']]],
   ['_5fintfac',['_intFac',['../classnow_1_1guard__agent.html#a798a3deff9687f371b9e8d17c7f40c48',1,'now::guard_agent']]],
   ['_5fkbdmutex',['_kbdMutex',['../classnow_1_1driver.html#ab11cbf40e562b94030d5328e68800ea2',1,'now::driver::_kbdMutex()'],['../classnow_1_1keyboard.html#aff66bc419b70fd7691f3285fe6b5a428',1,'now::keyboard::_kbdMutex()']]],
   ['_5fkbstat',['_kbStat',['../classnow_1_1driver.html#a10a88d7c856d5ca63eac50513ddc2e33',1,'now::driver']]],

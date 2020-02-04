@@ -151,10 +151,10 @@ public:
         return static_cast<int>(mii->second);
     }
     operator array<bitset<2>, 2>() const{
-        return array<bitset<2>, 2>{(_data>>2)&7, (_data)&7};
+        return array<bitset<2>, 2>{bitset<2>((_data>>2)&3), bitset<2>((_data)&3)};
     }
     operator vector<bitset<2>>() const{
-        vector<bitset<2>> retVal{(_data>>2)&7, (_data)&7};
+        vector<bitset<2>> retVal{bitset<2>((_data>>2)&3), bitset<2>((_data)&3)};
         return retVal;
     }
     uint8_t& get(){return _data;}

@@ -4,5 +4,5 @@ var searchData=
   ['linacc',['linAcc',['../classnow_1_1interface__d.html#a681409083b97757d5ec37e31cc99dc66',1,'now::interface_d']]],
   ['linear_5fsnap',['linear_snap',['../namespacenow.html#a2583c230c73525313515ce789908ccd9',1,'now']]],
   ['linvel',['linVel',['../classnow_1_1interface__d.html#af701a8707f22a6f828e9c5e96e31ccbc',1,'now::interface_d']]],
-  ['locdeathtraps',['locDeathtraps',['../namespacenow.html#a8355f17ea00d8983cc79c50d6d2f8ae7',1,'now']]]
+  ['locdeathtraps',['locDeathtraps',['../namespacenow.html#a142c1a8250c5e92c8ab0f4514d4893f8',1,'now']]]
 ];

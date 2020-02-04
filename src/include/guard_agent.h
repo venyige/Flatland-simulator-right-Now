@@ -4,6 +4,7 @@
 #include<iostream>
 #include<string>
 #include<fstream>
+#include<sstream>
 #include<thread>
 #include<cmath>
 #include<di_math.h>
@@ -21,7 +22,7 @@ public:
     /** \brief Init Constructor:
      * Initializer constructor with all the variables necessary to
      * autopilot and log*/
-    guard_agent(const size_t, const size_t, const double, const double, const double,  interface_d&, ofstream&, bool controlCar, bool logOn, bool logVerb, bool logTimely);
+    guard_agent(const size_t, const size_t, const double, const double, const double,  interface_d&, ofstream&, bool controlCar, bool logOn, bool logVerb, bool logTimely, bool dtPlus);
     void guard(volatile bool&);
     thread guardThread(volatile bool& quitter){return thread([&quitter, this]{this->guard(quitter);});}
 private:
@@ -35,7 +36,7 @@ private:
     interface_d& _intFac;///< Interface with the car driver thread
     const double safeC=1.2;///< Safety constant. Multiplicator of maximum distance taken in the time-slice
     vector<interface_d::mv_b> guardWalls;///< Walls and deathtraps
-    bool _logOn, _logVerb, _logTm, _ctrCar;
+    bool _logOn, _logVerb, _logTm, _ctrCar,_dtPlus;
 };
 
 

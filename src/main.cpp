@@ -130,6 +130,7 @@ int main(int argc, char** argv)
         return 1;
     }else {
         bool driverGuardCtr=false;
+        bool driverDtrapPlus=false;
         bool driverGuardLog=false;
         bool driverGuardVerbose=false;
         bool driverGuardTimelyLog=false;
@@ -140,13 +141,18 @@ int main(int argc, char** argv)
                 if ((cmd.find('c') != std::string::npos)||(cmd.find('C') != std::string::npos)){
                     driverGuardCtr=true;
                 }
+                if ((cmd.find('p') != std::string::npos)||(cmd.find('P') != std::string::npos)){
+                    driverDtrapPlus=true;
+                }
                 if ((cmd.find('l') != std::string::npos)||(cmd.find('L') != std::string::npos)){
                     driverGuardLog=true;
                 }
                 if ((cmd.find('v') != std::string::npos)||(cmd.find('V') != std::string::npos)){
+                    driverGuardLog=true;
                     driverGuardVerbose=true;
                 }
                 if ((cmd.find('t') != std::string::npos)||(cmd.find('T') != std::string::npos)){
+                    driverGuardLog=true;
                     driverGuardTimelyLog=true;
                 }
 
@@ -195,7 +201,8 @@ int main(int argc, char** argv)
                                                                        driverGuardCtr,
                                                                        driverGuardLog,
                                                                        driverGuardVerbose,
-                                                                       driverGuardTimelyLog
+                                                                       driverGuardTimelyLog,
+                                                                       driverDtrapPlus
                                                                        );
             thread gaTr=guardInst->guardThread(kbQuitter);
             guiC->disp();//< gui::disp works in the main thread.
