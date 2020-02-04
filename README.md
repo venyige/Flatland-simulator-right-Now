@@ -42,11 +42,17 @@ Note: "Case B" is deliberately omitted, because of 1. lack of time, 2. from the 
 ```$./flsrn /path/to/scene/file [-[c][p][l[v[t]]|v[t]|t]``` 
 
 Parameters: 
+
 -c The driver assist to take control. 
+
 -l Log warnings and data into ```/tmp/car_log.txt``` 
+
 -v Verbose log 
+
 -t Log in a timely manner (freqency is 3/second) 
+
 -p Deathtrap Plus. To handle "><" traps.  
+
  
 To display Driver Assistant warnings and logs in a second terminal: 
  
